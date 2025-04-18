@@ -1,0 +1,19 @@
+# this override file will be automatically used when `docker-compose up` is run and can contain development-specific configs
+services:
+  api:
+    environment:
+      - DEBUG=true
+    volumes:
+      - ./services/api:/app:cached
+
+  device-mgmt:
+    environment:
+      - DEBUG=true
+    volumes:
+      - ./services/device-mgmt:/app:cached
+
+  analytics:
+    environment:
+      - DEBUG=true
+    volumes:
+      - ./services/analytics:/app:cached
