@@ -116,5 +116,5 @@ class DynamoDBService:
         return reading_data
 
 # Determine which service to use based on environment
-use_mock = os.environ.get("USE_MOCK_DB", "true").lower() == "true"
+use_mock = settings.USE_MOCK_DB
 db_service = MockDynamoDBService() if use_mock else DynamoDBService()
