@@ -28,11 +28,38 @@ jobs:
       run: |
         cd frontend
         npm ci
+        # Install ESLint for linting
+        npm install --save-dev eslint eslint-plugin-react
+    
+    - name: Add lint script to package.json
+      run: |
+        cd frontend
+        # Add a lint script to package.json if it doesn't exist
+        if ! grep -q "\"lint\":" package.json; then
+          sed -i 's/"scripts": {/"scripts": {\n    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",/g' package.json
+        fi
+    
+    - name: Create ESLint config if needed
+      run: |
+        cd frontend
+        if [ ! -f ".eslintrc.json" ]; then
+          echo '{
+            "extends": ["react-app"],
+            "rules": {
+              "no-unused-vars": "warn"
+            }
+          }' > .eslintrc.json
+        fi
+    
+    - name: Run linting
+      run: |
+        cd frontend
+        npm run lint
     
     - name: Run tests
       run: |
         cd frontend
-        CI=true npm test
+        CI=true npm test -- --watchAll=false
     
     - name: Build application
       run: |
