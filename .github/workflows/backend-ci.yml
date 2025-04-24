@@ -30,10 +30,10 @@ jobs:
             has_tests: false
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     
@@ -63,14 +63,14 @@ jobs:
     
     - name: Upload test results
       if: ${{ matrix.has_tests }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.service }}-test-results
         path: ${{ matrix.test_dir }}/test-results.xml
     
     - name: Upload coverage report
       if: ${{ matrix.has_tests }}
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         file: ${{ matrix.test_dir }}/coverage.xml
         flags: ${{ matrix.service }}
@@ -91,7 +91,7 @@ jobs:
             dockerfile_dir: services/analytics
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Build Docker image
       run: |
