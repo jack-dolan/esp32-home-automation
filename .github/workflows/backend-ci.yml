@@ -63,7 +63,7 @@ jobs:
     
     - name: Upload test results
       if: ${{ matrix.has_tests }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.service }}-test-results
         path: ${{ matrix.test_dir }}/test-results.xml
