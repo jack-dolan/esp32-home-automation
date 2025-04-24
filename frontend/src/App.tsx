@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
 import Settings from './pages/Settings';
