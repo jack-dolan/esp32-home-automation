@@ -26,6 +26,8 @@ jobs:
       run: |
         cd frontend
         npm ci
+        # Explicitly install react-router-dom to ensure it's available for tests
+        npm install --save react-router-dom
         # Install ESLint for linting
         npm install --save-dev eslint eslint-plugin-react
     
