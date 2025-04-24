@@ -5,7 +5,6 @@ on:
     branches: [ main ]
     paths:
       - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -29,13 +28,11 @@ jobs:
       run: |
         cd frontend
         npm ci
-        # Install ESLint for linting
         npm install --save-dev eslint eslint-plugin-react
     
     - name: Add lint script to package.json
       run: |
         cd frontend
-        # Add a lint script to package.json if it doesn't exist
         if ! grep -q "\"lint\":" package.json; then
           sed -i 's/"scripts": {/"scripts": {\n    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",/g' package.json
         fi
@@ -60,17 +57,9 @@ jobs:
     - name: Run tests
       run: |
         cd frontend
-        CI=true npm run test:ci
+        CI=true npm test -- --watchAll=false
     
     - name: Build application
       run: |
         cd frontend
         npm run build
-    
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./frontend/coverage/lcov.info
-        flags: frontend
-        fail_ci_if_error: false

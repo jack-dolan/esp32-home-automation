@@ -29,22 +29,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:ci": "react-scripts test --testResultsProcessor ./node_modules/jest-junit",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
-  },
-  "jest": {
-    "reporters": [
-      "default",
-      ["jest-junit", {
-        "outputDirectory": "./",
-        "outputName": "junit.xml"
-      }]
     ]
   },
   "browserslist": {
