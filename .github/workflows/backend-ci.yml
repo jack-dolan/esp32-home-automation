@@ -72,6 +72,7 @@ jobs:
       if: ${{ matrix.has_tests }}
       uses: codecov/codecov-action@v3
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         file: ${{ matrix.test_dir }}/coverage.xml
         flags: ${{ matrix.service }}
         fail_ci_if_error: false
