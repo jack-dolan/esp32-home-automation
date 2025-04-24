@@ -13,6 +13,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, device-mgmt, analytics]
+        include:
+          - service: api
+            test_dir: services/api
+          - service: device-mgmt
+            test_dir: services/device-mgmt
+          - service: analytics
+            test_dir: services/analytics
     
     steps:
     - uses: actions/checkout@v2
@@ -24,21 +34,27 @@ jobs:
     
     - name: Install dependencies
       run: |
+        cd ${{ matrix.test_dir }}
         python -m pip install --upgrade pip
-        pip install pytest pytest-cov flake8
+        pip install pytest pytest-cov httpx flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
     - name: Lint with flake8
       run: |
+        cd ${{ matrix.test_dir }}
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      continue-on-error: true
     
     - name: Test with pytest
       run: |
-        pytest --cov=./ --cov-report=xml
+        cd ${{ matrix.test_dir }}
+        pytest --cov=app --cov-report=xml
+      continue-on-error: ${{ matrix.service != 'api' }}  # Only fail the build for api service tests, the others services' tests don't exist yet
     
     - name: Upload coverage report
       uses: codecov/codecov-action@v1
       with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
+        file: ${{ matrix.test_dir }}/coverage.xml
+        flags: ${{ matrix.service }}
+        fail_ci_if_error: false

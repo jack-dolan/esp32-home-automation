@@ -1,26 +1,30 @@
-FROM python:3.9-slim
+FROM python:3.9-slim AS base
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
-# Create a non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
 WORKDIR /app
 
-# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install test dependencies
+RUN pip install pytest pytest-cov httpx
 
 # Copy application code
 COPY . .
 
+# Run tests
+RUN pytest tests/ || exit 1
+
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
 # Set permissions
 RUN chown -R appuser:appuser /app
 
-# Switch to literally any non-root user
+# Switch to non-root user created above
 USER appuser
 
 # Expose the best port
