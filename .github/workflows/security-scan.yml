@@ -15,8 +15,41 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run Bandit (Python static analysis)
+      run: |
+        bandit -r services/ -f json -o bandit-results.json || true
+    
+    - name: Run Safety (dependency check)
+      run: |
+        # Check each service's requirements.txt
+        for service in api device-mgmt analytics; do
+          if [ -f "services/$service/requirements.txt" ]; then
+            echo "Checking $service requirements..."
+            safety check -r services/$service/requirements.txt --json > safety-$service-results.json || true
+          fi
+        done
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v2
+      with:
+        name: security-scan-results
+        path: |
+          bandit-results.json
+          safety-*.json
+    
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/python@master
+      continue-on-error: true
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:

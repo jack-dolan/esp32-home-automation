@@ -37,6 +37,15 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "reporters": [
+      "default",
+      ["jest-junit", {
+        "outputDirectory": "./",
+        "outputName": "junit.xml"
+      }]
+    ]
+  },
   "browserslist": {
     "production": [
       ">0.2%",

@@ -9,14 +9,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install test dependencies
-RUN pip install pytest pytest-cov httpx
-
 # Copy application code
 COPY . .
-
-# Run tests
-RUN pytest tests/ || exit 1
 
 # Create a non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser

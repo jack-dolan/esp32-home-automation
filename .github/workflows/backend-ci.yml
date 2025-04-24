@@ -19,10 +19,13 @@ jobs:
         include:
           - service: api
             test_dir: services/api
+            has_tests: true
           - service: device-mgmt
             test_dir: services/device-mgmt
+            has_tests: false
           - service: analytics
             test_dir: services/analytics
+            has_tests: false
     
     steps:
     - uses: actions/checkout@v2
@@ -47,14 +50,52 @@ jobs:
       continue-on-error: true
     
     - name: Test with pytest
+      if: ${{ matrix.has_tests }}
       run: |
         cd ${{ matrix.test_dir }}
-        pytest --cov=app --cov-report=xml
-      continue-on-error: ${{ matrix.service != 'api' }}  # Only fail the build for api service tests, the others services' tests don't exist yet
+        pytest --cov=app --cov-report=xml --junitxml=test-results.xml
+    
+    - name: No tests available
+      if: ${{ !matrix.has_tests }}
+      run: echo "No tests available for ${{ matrix.service }} service yet. Skipping test step."
+    
+    - name: Upload test results
+      if: ${{ matrix.has_tests }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.service }}-test-results
+        path: ${{ matrix.test_dir }}/test-results.xml
     
     - name: Upload coverage report
+      if: ${{ matrix.has_tests }}
       uses: codecov/codecov-action@v1
       with:
         file: ${{ matrix.test_dir }}/coverage.xml
         flags: ${{ matrix.service }}
         fail_ci_if_error: false
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        service: [api, device-mgmt, analytics]
+        include:
+          - service: api
+            dockerfile_dir: services/api
+          - service: device-mgmt
+            dockerfile_dir: services/device-mgmt
+          - service: analytics
+            dockerfile_dir: services/analytics
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build Docker image
+      run: |
+        cd ${{ matrix.dockerfile_dir }}
+        docker build -t home-automation-${{ matrix.service }}:test .
+    
+    - name: Test Docker image
+      run: |
+        docker run --rm home-automation-${{ matrix.service }}:test python -c "print('Docker image works!')"

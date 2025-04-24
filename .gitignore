@@ -1,5 +1,7 @@
 management/
 dev.sh
+repomix-output.xml
+node_modules/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
