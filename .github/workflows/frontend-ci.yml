@@ -58,7 +58,7 @@ jobs:
     - name: Run tests
       run: |
         cd frontend
-        CI=true npm test
+        CI=true npm test -- --coverage
     
     - name: Build application
       run: |
