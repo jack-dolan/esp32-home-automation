@@ -60,7 +60,7 @@ jobs:
     - name: Run tests
       run: |
         cd frontend
-        CI=true npm test -- --watchAll=false
+        CI=true npm test:ci
     
     - name: Build application
       run: |
