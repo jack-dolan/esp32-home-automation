@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes import devices, states
 
 from app.api.routes import devices
 
@@ -16,6 +17,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(devices.router, prefix="/devices", tags=["devices"])
+app.include_router(states.router, prefix="/states", tags=["states"])
 
 @app.get("/")
 async def root():

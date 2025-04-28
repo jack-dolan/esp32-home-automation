@@ -1,5 +1,6 @@
 import boto3
 from datetime import datetime
+from app.models.state import DeviceState
 import logging
 import os
 from typing import List, Optional
@@ -11,6 +12,8 @@ class MockDatabaseService:
     def __init__(self):
         self.devices = []
         logging.info("Using mock database service for device management")
+        self.device_states = {}  # Map of device_id to state
+        self.state_history = {}  # Map of device_id to list of states
     
     async def get_devices(self) -> List[Device]:
         return self.devices
@@ -44,6 +47,30 @@ class MockDatabaseService:
         initial_count = len(self.devices)
         self.devices = [d for d in self.devices if d.id != device_id]
         return len(self.devices) < initial_count
+    
+    async def get_device_state(self, device_id: str) -> Optional[DeviceState]:
+        return self.device_states.get(device_id)
+
+    async def update_device_state(self, device_id: str, state_data: dict) -> Optional[DeviceState]:
+        # Create or update state
+        try:
+            state = DeviceState(**state_data)
+            self.device_states[device_id] = state
+            return state
+        except Exception as e:
+            logging.error(f"Error updating device state: {e}")
+            return None
+
+    async def record_state_history(self, device_id: str, state_data: dict) -> bool:
+        if device_id not in self.state_history:
+            self.state_history[device_id] = []
+        
+        self.state_history[device_id].append(state_data)
+        # Limit history length to 100 entries per device
+        if len(self.state_history[device_id]) > 100:
+            self.state_history[device_id] = self.state_history[device_id][-100:]
+        
+        return True
 
 class DynamoDBService:
     """AWS DynamoDB implementation for prod"""
@@ -116,6 +143,18 @@ class DynamoDBService:
         except Exception as e:
             logging.error(f"Error deleting device {device_id}: {e}")
             return False
+    
+    async def get_device_state(self, device_id: str) -> Optional[DeviceState]:
+        # Implementation
+        return None
+
+    async def update_device_state(self, device_id: str, state_data: dict) -> Optional[DeviceState]:
+        # Implementation
+        return None
+
+    async def record_state_history(self, device_id: str, state_data: dict) -> bool:
+        # Implementation (optional for history tracking)
+        return None
 
 # Create the appropriate database service based on environment
 use_mock_db = os.getenv("USE_MOCK_DB", "true").lower() == "true"
